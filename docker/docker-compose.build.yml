@@ -1,0 +1,8 @@
+version: "3.7"
+
+services:
+  frontend:
+    image: localhost:5000/mochi_counter:latest
+    build:
+      context: ../
+      dockerfile: Dockerfile

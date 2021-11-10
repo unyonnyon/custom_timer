@@ -1,0 +1,10 @@
+version: "3.7"
+
+services:
+  frontend:
+    container_name: mochi_counter
+    image: localhost:5000/mochi_counter:latest
+    expose:
+      - 80
+    ports:
+      - 5500:80
