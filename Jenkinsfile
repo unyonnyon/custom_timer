@@ -4,14 +4,11 @@ pwd
 cd /home/muraji/work/vue2/custom_timer
 pwd
 git pull
-cd ./docker
 docker-compose -f ./docker/docker-compose.build.yml build
 docker-compose -f ./docker/docker-compose.build.yml push                
 '''
 def dockerScripts = '''
-cd /home/muraji/work/vue2/custom_timer
-git pull
-cd ./docker
+cd /home/muraji/work/vue2/custom_timer/docker
 docker-compose -f docker-compose.yml down
 docker-compose -f docker-compose.yml up -d
 '''
