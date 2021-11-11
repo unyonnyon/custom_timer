@@ -1,7 +1,12 @@
 def sshScripts = '''
 whoami
-ls -la
 pwd
+cd /home/muraji/work/vue2/custom_timer
+pwd
+git pull
+cd ./docker
+docker-compose -f ./docker/docker-compose.build.yml build
+docker-compose -f ./docker/docker-compose.build.yml push                
 '''
 def dockerScripts = '''
 cd /home/muraji/work/vue2/custom_timer
@@ -19,10 +24,6 @@ pipeline{
                 sshagent(credentials: ['329556f7-5b4d-4e03-b4ef-7c9497d42db4']) {
                     sh "ssh muraji@192.168.10.111 '${sshScripts}'"
                 }
-                sh '''
-                docker-compose -f ./docker/docker-compose.build.yml build
-                docker-compose -f ./docker/docker-compose.build.yml push
-                '''
             }
             post{
                 always{
@@ -40,7 +41,7 @@ pipeline{
             steps{
                 echo "====++++executing Deploy++++===="
                 sshagent(credentials: ['329556f7-5b4d-4e03-b4ef-7c9497d42db4']) {
-                    sh "ssh muraji@192.168.10.111 '${sshScripts}'"
+                    sh "ssh muraji@192.168.10.111 '${dockerScripts}'"
                 }
             }
             post{
