@@ -3,7 +3,11 @@
     <div v-if="isExist">
       <v-btn @click="start" color="cyan lighten-3">{{ name }} 討伐</v-btn>
     </div>
-    <div v-else>{{ zeroPadding(minRef, 2) }}:{{ zeroPadding(secRef, 2) }}</div>
+    <div v-else>
+      <v-btn @click="clear" text block>
+        {{ zeroPadding(minRef, 2) }}:{{ zeroPadding(secRef, 2) }}
+      </v-btn>
+    </div>
   </div>
 </template>
 
@@ -48,6 +52,11 @@ export default defineComponent({
       clearInterval(timerObj);
     };
 
+    const clear = () => {
+      stop();
+      isExist.value = true;
+    };
+
     watch(secRef, () => {
       if (minRef.value == 0 && secRef.value == 0) {
         stop();
@@ -61,6 +70,7 @@ export default defineComponent({
       isExist,
       start,
       zeroPadding,
+      clear,
     };
   },
 });
