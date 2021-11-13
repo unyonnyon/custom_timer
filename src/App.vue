@@ -1,8 +1,7 @@
 <template>
   <v-app>
     <v-app-bar app color="black" dark>
-      <h1>もちもちたいまー</h1>
-      <v-spacer></v-spacer>
+      <custom-header></custom-header>
     </v-app-bar>
 
     <v-main>
@@ -12,7 +11,12 @@
 </template>
 
 <script>
+import CustomHeader from "./components/CustomHeader.vue";
+
 export default {
+  components: {
+    CustomHeader,
+  },
   name: "App",
 
   data: () => ({

@@ -1,7 +1,7 @@
 <template>
   <v-container fluid>
-    <v-row no-gutters>
-      <v-col v-for="(img, index) in monsters" :key="index" class="mb-4">
+    <div class="d-flex flex-wrap justify-space-between">
+      <div v-for="(img, index) in monsters" :key="index" class="mb-3">
         <v-card>
           <v-img height="120" :src="img"></v-img>
           <v-card-text>
@@ -10,8 +10,8 @@
             <Counter name="3ch" />
           </v-card-text>
         </v-card>
-      </v-col>
-    </v-row>
+      </div>
+    </div>
   </v-container>
 </template>
 
