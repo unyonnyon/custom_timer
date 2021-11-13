@@ -32,7 +32,13 @@
 import { defineComponent, ref, computed, watch } from "@vue/composition-api";
 
 export default defineComponent({
-  setup() {
+  props: {
+    free: {
+      type: String,
+      required: true,
+    },
+  },
+  setup(props) {
     const isExist = ref(true);
     const minRef = ref(0);
     const secRef = ref(0);
@@ -68,27 +74,94 @@ export default defineComponent({
           minRef.value -= 1;
           secRef.value = 59;
         }
+        switchAlertState(minRef.value, secRef.value);
       }, 1000);
     };
 
     const stop = () => {
       clearInterval(timerObj);
+      isExist.value = true;
+      alertState.value = "normal";
     };
 
     const clear = () => {
       stop();
-      isExist.value = true;
     };
 
     watch(secRef, () => {
       if (minRef.value == 0 && secRef.value == 0) {
         stop();
-        isExist.value = true;
       }
     });
 
     const zeroPadding = (NUM, LEN) => {
       return (Array(LEN).join("0") + NUM).slice(-LEN);
+    };
+
+    const alertState = ref("normal");
+
+    const setAlertState = (prevState, newState) => {
+      if (prevState !== newState) {
+        alertState.value = newState;
+        alerm(newState);
+      }
+    };
+
+    const switchAlertState = (min, sec) => {
+      const total = min * 60 + sec;
+      const prevState = alertState.value;
+      if (total <= 1) {
+        setAlertState(prevState, "emergence");
+      } else if (total <= 30) {
+        setAlertState(prevState, "warning");
+      }
+    };
+
+    const voiceMessage = async (mode) => {
+      const monsterNameVoice = new Audio(
+        require(`../assets/raw_sounds/frees/${props.free}.wav`)
+      );
+      const actionVoice = new Audio(
+        require(`../assets/raw_sounds/actions/${mode}.wav`)
+      );
+      channelVoice.onended = async () => {
+        await monsterNameVoice.play();
+      };
+      monsterNameVoice.onended = async () => {
+        await actionVoice.play();
+      };
+      await channelVoice.play();
+    };
+
+    const voiceMessageWithDuration = async (duration, mode) => {
+      const monsterNameVoice = new Audio(
+        require(`../assets/raw_sounds/frees/${props.free}.wav`)
+      );
+      const durationVoice = new Audio(
+        require(`../assets/raw_sounds/durations/${duration}.wav`)
+      );
+      const actionVoice = new Audio(
+        require(`../assets/raw_sounds/actions/${mode}.wav`)
+      );
+      channelVoice.onended = async () => {
+        await monsterNameVoice.play();
+      };
+      monsterNameVoice.onended = async () => {
+        await durationVoice.play();
+      };
+      durationVoice.onended = async () => {
+        await actionVoice.play();
+      };
+      await channelVoice.play();
+    };
+
+    const alerm = async (alertState) => {
+      if (!store.getters.isSoundActive) return;
+      if (alertState === "emergence") {
+        await voiceMessage("appeared");
+      } else if (alertState === "warning") {
+        await voiceMessageWithDuration("30sec", "appearance");
+      }
     };
 
     return {

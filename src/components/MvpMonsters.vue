@@ -1,12 +1,12 @@
 <template>
   <v-container fluid class="py-0">
     <div class="d-flex flex-wrap justify-space-between">
-      <div v-for="(img, index) in monsters" :key="index" class="mb-3">
-        <ImageCounter :img="img" />
+      <div v-for="(monster, index) in monsters" :key="index" class="mb-3">
+        <ImageCounter :img="monster.img" :monster="monster.name" />
       </div>
-      <custom-counter />
-      <custom-counter />
-      <custom-counter />
+      <custom-counter free="free1" />
+      <custom-counter free="free2" />
+      <custom-counter free="free3" />
     </div>
   </v-container>
 </template>
@@ -23,25 +23,24 @@ export default defineComponent({
   },
   setup() {
     const monsters = [
-      "images/master_ring.png",
-      "images/master_ring.png",
-      "images/master_ring.png",
-      "images/master_ring.png",
-      "images/master_ring.png",
-      "images/master_ring.png",
-      "images/master_ring.png",
-      "images/master_ring.png",
-      "images/master_ring.png",
-      "images/master_ring.png",
-      "images/master_ring.png",
-      "images/master_ring.png",
-      "images/master_ring.png",
-      "images/master_ring.png",
-      "images/master_ring.png",
-      "images/master_ring.png",
-      "images/master_ring.png",
+      { img: "images/mvps/angel_ring.png", name: "angel_ring" },
+      { img: "images/mvps/golden_cockroach.png", name: "golden_cockroach" },
+      { img: "images/mvps/devil_ring.png", name: "devil_ring" },
+      { img: "images/mvps/orc_hero.png", name: "orc_hero" },
+      { img: "images/mvps/maya.png", name: "maya" },
+      { img: "images/mvps/orc_lord.png", name: "orc_lord" },
+      { img: "images/mvps/goblin_leader.png", name: "goblin_leader" },
+      { img: "images/mvps/drake.png", name: "drake" },
+      { img: "images/mvps/edgar.png", name: "edgar" },
+      { img: "images/mvps/mistress.png", name: "mistress" },
+      { img: "images/mvps/osiris.png", name: "osiris" },
+      { img: "images/mvps/phreeoni.png", name: "phreeoni" },
+      { img: "images/mvps/wolyafa.png", name: "wolyafa" },
+      { img: "images/mvps/dracula.png", name: "dracula" },
+      { img: "images/mvps/doppelganger.png", name: "doppelganger" },
+      { img: "images/mvps/pharaoh.png", name: "pharaoh" },
+      { img: "images/mvps/baphomet.png", name: "baphomet" },
     ];
-
     return {
       monsters,
     };

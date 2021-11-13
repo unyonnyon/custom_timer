@@ -28,6 +28,7 @@
 
 <script>
 import { defineComponent, ref, computed, watch } from "@vue/composition-api";
+import store from "../store/index";
 
 export default defineComponent({
   props: {
@@ -38,8 +39,12 @@ export default defineComponent({
         return "";
       },
     },
+    monster: {
+      type: String,
+      required: true,
+    },
   },
-  setup() {
+  setup(props) {
     const isExist = ref(true);
     const minRef = ref(0);
     const secRef = ref(0);
@@ -75,16 +80,18 @@ export default defineComponent({
           minRef.value -= 1;
           secRef.value = 59;
         }
+        switchAlertState(minRef.value, secRef.value);
       }, 1000);
     };
 
     const stop = () => {
       clearInterval(timerObj);
+      isExist.value = true;
+      alertState.value = "normal";
     };
 
     const clear = () => {
       stop();
-      isExist.value = true;
     };
 
     watch(secRef, () => {
@@ -96,6 +103,82 @@ export default defineComponent({
 
     const zeroPadding = (NUM, LEN) => {
       return (Array(LEN).join("0") + NUM).slice(-LEN);
+    };
+
+    const alertState = ref("normal");
+
+    const setAlertState = (prevState, newState) => {
+      if (prevState !== newState) {
+        alertState.value = newState;
+        alerm(newState);
+      }
+    };
+
+    const alerm = async (alertState) => {
+      if (!store.getters.isSoundActive) return;
+      switch (alertState) {
+        case "appearance":
+          await voiceMessage("appeared");
+          break;
+        case "emergence":
+          await voiceMessageWithDuration("2min", "appearance");
+          break;
+        case "warning":
+          await voiceMessageWithDuration("5min", "appearance");
+          break;
+        case "caution":
+          await voiceMessageWithDuration("10min", "appearance");
+          break;
+        default:
+          break;
+      }
+    };
+
+    const switchAlertState = (min, sec) => {
+      const total = min * 60 + sec;
+      const prevState = alertState.value;
+      const timings = store.getters.mvpAlertTimings;
+      if (total <= 1) {
+        setAlertState(prevState, "appearance");
+      } else if (timings.includes("2") && total === 120) {
+        setAlertState(prevState, "emergence");
+      } else if (timings.includes("5") && total === 300) {
+        setAlertState(prevState, "warning");
+      } else if (timings.includes("10") && total === 600) {
+        setAlertState(prevState, "caution");
+      }
+    };
+
+    const voiceMessage = async (mode) => {
+      const monsterNameVoice = new Audio(
+        require(`../assets/raw_sounds/mvps/${props.monster}.wav`)
+      );
+      const actionVoice = new Audio(
+        require(`../assets/raw_sounds/actions/${mode}.wav`)
+      );
+      monsterNameVoice.onended = async () => {
+        await actionVoice.play();
+      };
+      await monsterNameVoice.play();
+    };
+
+    const voiceMessageWithDuration = async (duration, mode) => {
+      const monsterNameVoice = new Audio(
+        require(`../assets/raw_sounds/mvps/${props.monster}.wav`)
+      );
+      const durationVoice = new Audio(
+        require(`../assets/raw_sounds/durations/${duration}.wav`)
+      );
+      const actionVoice = new Audio(
+        require(`../assets/raw_sounds/actions/${mode}.wav`)
+      );
+      monsterNameVoice.onended = async () => {
+        await durationVoice.play();
+      };
+      durationVoice.onended = async () => {
+        await actionVoice.play();
+      };
+      await monsterNameVoice.play();
     };
 
     return {
