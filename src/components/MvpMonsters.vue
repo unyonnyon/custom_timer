@@ -1,33 +1,25 @@
 <template>
-  <v-container fluid>
+  <v-container fluid class="py-0">
     <div class="d-flex flex-wrap justify-space-between">
-      <div v-for="(img, index) in monsters" :key="index" class="mb-4">
-        <v-card>
-          <v-img height="120" :src="img"></v-img>
-          <v-card-text>
-            <Counter name="1ch" />
-          </v-card-text>
-        </v-card>
+      <div v-for="(img, index) in monsters" :key="index" class="mb-3">
+        <ImageCounter :img="img" />
       </div>
-      <div>
-        <v-card>
-          <v-img height="120" width="414" :src="img"></v-img>
-          <v-card-text>
-            <Counter name="1ch" />
-          </v-card-text>
-        </v-card>
-      </div>
+      <custom-counter />
+      <custom-counter />
+      <custom-counter />
     </div>
   </v-container>
 </template>
 
 <script>
 import { defineComponent } from "@vue/composition-api";
-import Counter from "./CustomCounter.vue";
+import ImageCounter from "./ImageCounter.vue";
+import CustomCounter from "./CustomCounter.vue";
 
 export default defineComponent({
   components: {
-    Counter,
+    ImageCounter,
+    CustomCounter,
   },
   setup() {
     const monsters = [

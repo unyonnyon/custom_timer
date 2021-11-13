@@ -1,50 +1,64 @@
 <template>
-  <div>
-    <div v-if="isExist">
-      <v-row class="px-2">
+  <v-card width="120" height="170">
+    <div class="pa-1">
+      <v-textarea hide-details outlined label="memo" height="116"
+        >memo</v-textarea
+      >
+    </div>
+    <v-card-text class="px-2 pt-1">
+      <div v-if="isExist" class="d-flex justify-around-between px-1">
+        <v-btn icon @click="start" :disabled="!validateTimeString" class="mx-0">
+          <v-icon color="primary">mdi-clock-alert-outline</v-icon>
+        </v-btn>
         <v-text-field
           dense
           style="max-width: 68px"
-          name="name"
-          v-model="defaultValue"
+          v-model="remainTimeString"
           class="mr-1"
-          >120:00</v-text-field
-        >
-        <!-- <v-btn @click="start" text color="cyan lighten-3">120:00</v-btn> -->
-        <v-btn icon>
-          <v-icon>mdi-clock-alert-outline</v-icon>
-        </v-btn>
-      </v-row>
-    </div>
-    <div v-else>{{ zeroPadding(minRef, 2) }}:{{ zeroPadding(secRef, 2) }}</div>
-  </div>
+          :rules="[validateTimeString]"
+          hide-details
+        ></v-text-field>
+      </div>
+      <v-btn v-else block @click="clear">
+        {{ zeroPadding(minRef, Math.max(2, String(minRef).length)) }}:{{
+          zeroPadding(secRef, 2)
+        }}
+      </v-btn>
+    </v-card-text>
+  </v-card>
 </template>
 
 <script>
-import { defineComponent, ref, watch } from "@vue/composition-api";
+import { defineComponent, ref, computed, watch } from "@vue/composition-api";
 
 export default defineComponent({
-  props: {
-    name: {
-      type: String,
-      required: true,
-    },
-  },
   setup() {
-    const INIT_MIN = 15;
-    const INIT_SEC = 0;
-    const minRef = ref(INIT_MIN);
-    const secRef = ref(INIT_SEC);
     const isExist = ref(true);
+    const minRef = ref(0);
+    const secRef = ref(0);
     let timerObj = undefined;
 
-    const zeroPadding = (NUM, LEN) => {
-      return (Array(LEN).join("0") + NUM).slice(-LEN);
+    const setDefault = () => {
+      console.log("set default");
+      remainTimeString.value = "120:00";
     };
 
+    const remainTimeString = ref("120:00");
+    const validateTimeString = computed(() => {
+      if (remainTimeString.value.match(/[^0-9:]/)) return false;
+      const [min, sec] = remainTimeString.value.split(":");
+      if (!min || !sec) return false;
+      if (Number(min) === 0 && Number(sec) === 0) return false;
+      if (Number(sec) < 0 || Number(sec) > 59) return false;
+      if (Number(min) < 0) return false;
+      return true;
+    });
+
     const start = () => {
-      secRef.value = INIT_SEC;
-      minRef.value = INIT_MIN;
+      const [m, s] = remainTimeString.value.split(":");
+      console.log(m, s);
+      secRef.value = Number(s);
+      minRef.value = Number(m);
 
       isExist.value = false;
 
@@ -61,6 +75,11 @@ export default defineComponent({
       clearInterval(timerObj);
     };
 
+    const clear = () => {
+      stop();
+      isExist.value = true;
+    };
+
     watch(secRef, () => {
       if (minRef.value == 0 && secRef.value == 0) {
         stop();
@@ -68,15 +87,21 @@ export default defineComponent({
       }
     });
 
-    const defaultValue = ref("120:00");
+    const zeroPadding = (NUM, LEN) => {
+      return (Array(LEN).join("0") + NUM).slice(-LEN);
+    };
 
     return {
       minRef,
       secRef,
+      remainTimeString,
+      validateTimeString,
       isExist,
       start,
+      stop,
+      clear,
+      setDefault,
       zeroPadding,
-      defaultValue,
     };
   },
 });

@@ -1,13 +1,13 @@
 <template>
-  <div>
-    <mini-monsters />
+  <v-sheet>
+    <mini-monsters class="mt-3" />
     <mvp-monsters />
-  </div>
+  </v-sheet>
 </template>
 
 <script>
-import MiniMonsters from "../components/MiniMonsters.vue";
-import MvpMonsters from "../components/MvpMonsters.vue";
+import MiniMonsters from "../components/MiniMonsters";
+import MvpMonsters from "../components/MvpMonsters";
 
 export default {
   name: "Home",

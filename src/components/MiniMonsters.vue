@@ -1,10 +1,10 @@
 <template>
-  <v-container fluid>
+  <v-container fluid class="py-0">
     <div class="d-flex flex-wrap justify-space-between">
       <div v-for="(img, index) in monsters" :key="index" class="mb-3">
-        <v-card>
+        <v-card width="120">
           <v-img height="120" :src="img"></v-img>
-          <v-card-text>
+          <v-card-text class="pa-2">
             <Counter name="1ch" />
             <Counter name="2ch" />
             <Counter name="3ch" />

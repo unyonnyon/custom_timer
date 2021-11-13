@@ -11,10 +11,18 @@ export default new Vuex.Store({
   },
   getters: {
     isSoundActive(state) {
-      return state.sound;
+      return state.config.sound;
     },
   },
-  mutations: {},
-  actions: {},
+  mutations: {
+    setSound(state, payload) {
+      state.config.sound = payload;
+    },
+  },
+  actions: {
+    setSound(context, payload) {
+      context.commit("setSound", payload);
+    },
+  },
   modules: {},
 });

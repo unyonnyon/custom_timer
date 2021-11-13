@@ -1,10 +1,13 @@
 <template>
   <div>
     <div v-if="isExist">
-      <v-btn @click="start" color="cyan lighten-3">{{ name }} 討伐</v-btn>
+      <v-btn @click="start" block color="grey lighten-1">
+        <v-icon left>mdi-fencing</v-icon>
+        {{ name }}</v-btn
+      >
     </div>
-    <v-sheet v-else :color="customColor"
-      >{{ zeroPadding(minRef, 2) }}:{{ zeroPadding(secRef, 2) }}</v-sheet
+    <v-btn v-else :color="customColor" @click="clear" block
+      >{{ zeroPadding(minRef, 2) }}:{{ zeroPadding(secRef, 2) }}</v-btn
     >
   </div>
 </template>
@@ -12,6 +15,7 @@
 <script>
 import { defineComponent, ref, watch, computed } from "@vue/composition-api";
 import sound from "../assets/001.wav";
+import store from "../store/index";
 
 export default defineComponent({
   props: {
@@ -35,26 +39,33 @@ export default defineComponent({
     const customColor = computed(() => {
       let classes = "teal lighten-5";
       if (alertState.value === "caution") {
-        classes = "yellow";
+        classes = "yellow lighten-3";
       } else if (alertState.value === "warning") {
-        classes = "orange";
+        classes = "orange lighten-3";
       } else if (alertState.value === "emergence") {
-        classes = "red";
+        classes = "red lighten-3";
       }
       return classes;
     });
 
     const alertState = ref("normal");
 
+    const setAlertState = (prevState, newState) => {
+      if (prevState !== newState) {
+        alertState.value = newState;
+        alerm(newState);
+      }
+    };
+
     const switchAlertState = (min, sec) => {
       const total = min * 60 + sec;
-      const prev_state = alertState.value;
+      const prevState = alertState.value;
       if (total <= 300) {
-        if (prev_state !== "emergence") alertState.value = "emergence";
+        setAlertState(prevState, "emergence");
       } else if (total <= 330) {
-        if (prev_state !== "warning") alertState.value = "warning";
+        setAlertState(prevState, "warning");
       } else if (total <= 420) {
-        if (prev_state !== "caution") alertState.value = "caution";
+        setAlertState(prevState, "caution");
       }
     };
 
@@ -83,7 +94,9 @@ export default defineComponent({
       isExist.value = true;
     };
 
-    const alerm = () => {
+    const alerm = (alertState) => {
+      if (!store.getters.isSoundActive) return;
+      if (alertState !== "emergence" && alertState !== "warning") return;
       const audio = new Audio(sound);
       audio.play();
     };
@@ -91,7 +104,7 @@ export default defineComponent({
     watch(secRef, () => {
       if (minRef.value == 0 && secRef.value == 0) {
         stop();
-        alerm();
+
         isExist.value = true;
       }
     });
@@ -101,6 +114,7 @@ export default defineComponent({
       secRef,
       isExist,
       start,
+      clear,
       zeroPadding,
       customColor,
     };
