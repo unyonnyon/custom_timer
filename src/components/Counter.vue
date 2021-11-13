@@ -9,6 +9,7 @@
 
 <script>
 import { defineComponent, ref, watch } from "@vue/composition-api";
+import sound from "../assets/001.wav";
 
 export default defineComponent({
   props: {
@@ -18,8 +19,8 @@ export default defineComponent({
     },
   },
   setup() {
-    const INIT_MIN = 15;
-    const INIT_SEC = 0;
+    const INIT_MIN = 0;
+    const INIT_SEC = 10;
     const minRef = ref(INIT_MIN);
     const secRef = ref(INIT_SEC);
     const isExist = ref(true);
@@ -48,9 +49,20 @@ export default defineComponent({
       clearInterval(timerObj);
     };
 
+    const clear = () => {
+      stop();
+      isExist.value = true;
+    };
+
+    const alerm = () => {
+      const audio = new Audio(sound);
+      audio.play();
+    };
+
     watch(secRef, () => {
       if (minRef.value == 0 && secRef.value == 0) {
         stop();
+        alerm();
         isExist.value = true;
       }
     });
