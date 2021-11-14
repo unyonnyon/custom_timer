@@ -5,9 +5,9 @@
         <v-card :width="dynamicWidth">
           <v-img height="120" :src="monster.img"></v-img>
           <v-card-text class="pa-2">
-            <Counter channel="1ch" :monster="monster.name" />
-            <Counter channel="2ch" :monster="monster.name" />
-            <Counter channel="3ch" :monster="monster.name" />
+            <Counter channel="ch1" :monster="monster.name" />
+            <Counter channel="ch2" :monster="monster.name" />
+            <Counter channel="ch3" :monster="monster.name" />
           </v-card-text>
         </v-card>
       </div>
