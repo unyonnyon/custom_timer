@@ -1,26 +1,35 @@
 <template>
   <div>
     <div v-if="isExist">
-      <v-btn @click="start" color="cyan lighten-3">{{ name }} 討伐</v-btn>
+      <v-btn @click="start" block color="grey lighten-1">
+        <v-icon left>mdi-fencing</v-icon>
+        {{ channel }}</v-btn
+      >
     </div>
-    <div v-else>{{ zeroPadding(minRef, 2) }}:{{ zeroPadding(secRef, 2) }}</div>
+    <v-btn v-else :color="customColor" @click="clear" block
+      >{{ zeroPadding(minRef, 2) }}:{{ zeroPadding(secRef, 2) }}</v-btn
+    >
   </div>
 </template>
 
 <script>
-import { defineComponent, ref, watch } from "@vue/composition-api";
-import sound from "../assets/001.wav";
+import { defineComponent, ref, watch, computed } from "@vue/composition-api";
+import store from "../store/index";
 
 export default defineComponent({
   props: {
-    name: {
+    monster: {
+      type: String,
+      required: true,
+    },
+    channel: {
       type: String,
       required: true,
     },
   },
-  setup() {
-    const INIT_MIN = 0;
-    const INIT_SEC = 10;
+  setup(props) {
+    const INIT_MIN = 20;
+    const INIT_SEC = 0;
     const minRef = ref(INIT_MIN);
     const secRef = ref(INIT_SEC);
     const isExist = ref(true);
@@ -28,6 +37,39 @@ export default defineComponent({
 
     const zeroPadding = (NUM, LEN) => {
       return (Array(LEN).join("0") + NUM).slice(-LEN);
+    };
+
+    const customColor = computed(() => {
+      let classes = "teal lighten-5";
+      if (alertState.value === "caution") {
+        classes = "yellow lighten-3";
+      } else if (alertState.value === "warning") {
+        classes = "orange lighten-3";
+      } else if (alertState.value === "emergence") {
+        classes = "red lighten-3";
+      }
+      return classes;
+    });
+
+    const alertState = ref("normal");
+
+    const setAlertState = (prevState, newState) => {
+      if (prevState !== newState) {
+        alertState.value = newState;
+        alerm(newState);
+      }
+    };
+
+    const switchAlertState = (min, sec) => {
+      const total = min * 60 + sec;
+      const prevState = alertState.value;
+      if (total <= 300) {
+        setAlertState(prevState, "emergence");
+      } else if (total <= 330) {
+        setAlertState(prevState, "warning");
+      } else if (total <= 420) {
+        setAlertState(prevState, "caution");
+      }
     };
 
     const start = () => {
@@ -42,37 +84,87 @@ export default defineComponent({
           minRef.value -= 1;
           secRef.value = 59;
         }
+        switchAlertState(minRef.value, secRef.value);
       }, 1000);
     };
 
     const stop = () => {
       clearInterval(timerObj);
+      isExist.value = true;
+      alertState.value = "normal";
     };
 
     const clear = () => {
       stop();
-      isExist.value = true;
     };
 
-    const alerm = () => {
-      const audio = new Audio(sound);
-      audio.play();
+    const alerm = async (alertState) => {
+      if (!store.getters.isSoundActive) return;
+      if (alertState === "emergence") {
+        await voiceMessage("appeared");
+      } else if (alertState === "warning") {
+        await voiceMessageWithDuration("30sec", "appearance");
+      }
     };
 
     watch(secRef, () => {
       if (minRef.value == 0 && secRef.value == 0) {
         stop();
-        alerm();
-        isExist.value = true;
       }
     });
+
+    const voiceMessage = async (mode) => {
+      const channelVoice = new Audio(
+        require(`../assets/raw_sounds/channels/${props.channel}.wav`)
+      );
+      const monsterNameVoice = new Audio(
+        require(`../assets/raw_sounds/minis/${props.monster}.wav`)
+      );
+      const actionVoice = new Audio(
+        require(`../assets/raw_sounds/actions/${mode}.wav`)
+      );
+      channelVoice.onended = async () => {
+        await monsterNameVoice.play();
+      };
+      monsterNameVoice.onended = async () => {
+        await actionVoice.play();
+      };
+      await channelVoice.play();
+    };
+
+    const voiceMessageWithDuration = async (duration, mode) => {
+      const channelVoice = new Audio(
+        require(`../assets/raw_sounds/channels/${props.channel}.wav`)
+      );
+      const monsterNameVoice = new Audio(
+        require(`../assets/raw_sounds/minis/${props.monster}.wav`)
+      );
+      const durationVoice = new Audio(
+        require(`../assets/raw_sounds/durations/${duration}.wav`)
+      );
+      const actionVoice = new Audio(
+        require(`../assets/raw_sounds/actions/${mode}.wav`)
+      );
+      channelVoice.onended = async () => {
+        await monsterNameVoice.play();
+      };
+      monsterNameVoice.onended = async () => {
+        await durationVoice.play();
+      };
+      durationVoice.onended = async () => {
+        await actionVoice.play();
+      };
+      await channelVoice.play();
+    };
 
     return {
       minRef,
       secRef,
       isExist,
       start,
+      clear,
       zeroPadding,
+      customColor,
     };
   },
 });

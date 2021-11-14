@@ -1,15 +1,20 @@
 <template>
-  <hello-world />
+  <v-sheet>
+    <mini-monsters class="mt-3" />
+    <mvp-monsters />
+  </v-sheet>
 </template>
 
 <script>
-  import HelloWorld from '../components/HelloWorld'
+import MiniMonsters from "../components/MiniMonsters";
+import MvpMonsters from "../components/MvpMonsters";
 
-  export default {
-    name: 'Home',
+export default {
+  name: "Home",
 
-    components: {
-      HelloWorld,
-    },
-  }
+  components: {
+    MiniMonsters,
+    MvpMonsters,
+  },
+};
 </script>
