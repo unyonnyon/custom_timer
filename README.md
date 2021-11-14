@@ -1,24 +1,7 @@
-# custom_timer
+# もちもちたいまー
 
-## Project setup
-```
-npm install
-```
+ラグラロクオリジンの〇〇向けのタイマーです。
 
-### Compiles and hot-reloads for development
-```
-npm run serve
-```
+## 想定動作環境
 
-### Compiles and minifies for production
-```
-npm run build
-```
-
-### Lints and fixes files
-```
-npm run lint
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+Google Chrome/Safari におけるデスクトップ環境での利用を想定しています。iPhone 上での動作では音声が正しく音声が再生されません
