@@ -2,17 +2,21 @@
   <v-container fluid class="py-0">
     <div class="d-flex flex-wrap justify-space-between">
       <div v-for="(monster, index) in monsters" :key="index" class="mb-3">
-        <ImageCounter :img="monster.img" :monster="monster.name" />
+        <ImageCounter
+          :img="monster.img"
+          :monster="monster.name"
+          :width="dynamicWidth"
+        />
       </div>
-      <custom-counter free="free1" />
-      <custom-counter free="free2" />
-      <custom-counter free="free3" />
+      <custom-counter free="free1" :width="dynamicWidth" />
+      <custom-counter free="free2" :width="dynamicWidth" />
+      <custom-counter free="free3" :width="dynamicWidth" />
     </div>
   </v-container>
 </template>
 
 <script>
-import { defineComponent } from "@vue/composition-api";
+import { defineComponent, computed } from "@vue/composition-api";
 import ImageCounter from "./ImageCounter.vue";
 import CustomCounter from "./CustomCounter.vue";
 
@@ -22,6 +26,12 @@ export default defineComponent({
     CustomCounter,
   },
   setup() {
+    const dynamicWidth = computed(() => {
+      const size = 10;
+      const margin = 10;
+      return Math.round((window.innerWidth - margin * size) / size);
+    });
+
     const monsters = [
       { img: "images/mvps/angel_ring.png", name: "angel_ring" },
       { img: "images/mvps/golden_cockroach.png", name: "golden_cockroach" },
@@ -42,6 +52,7 @@ export default defineComponent({
       { img: "images/mvps/baphomet.png", name: "baphomet" },
     ];
     return {
+      dynamicWidth,
       monsters,
     };
   },

@@ -1,5 +1,5 @@
 <template>
-  <v-card width="120" height="170">
+  <v-card :width="width" height="170">
     <div class="pa-1">
       <v-textarea hide-details outlined label="memo" height="116"
         >memo</v-textarea
@@ -37,6 +37,13 @@ export default defineComponent({
     free: {
       type: String,
       required: true,
+    },
+    width: {
+      type: Number,
+      required: false,
+      default: () => {
+        return 120;
+      },
     },
   },
   setup(props) {

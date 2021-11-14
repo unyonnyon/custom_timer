@@ -1,5 +1,5 @@
 <template>
-  <v-card width="120" height="170">
+  <v-card :width="width" height="170">
     <div @click="setDefault">
       <v-img height="120" :src="img"></v-img>
     </div>
@@ -42,6 +42,13 @@ export default defineComponent({
     monster: {
       type: String,
       required: true,
+    },
+    width: {
+      type: Number,
+      required: false,
+      default: () => {
+        return 120;
+      },
     },
   },
   setup(props) {

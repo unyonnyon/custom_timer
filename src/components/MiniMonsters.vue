@@ -2,7 +2,7 @@
   <v-container fluid class="py-0">
     <div class="d-flex flex-wrap justify-space-between">
       <div v-for="(monster, index) in monsters" :key="index" class="mb-3">
-        <v-card width="120">
+        <v-card :width="dynamicWidth">
           <v-img height="120" :src="monster.img"></v-img>
           <v-card-text class="pa-2">
             <Counter channel="1ch" :monster="monster.name" />
@@ -16,7 +16,7 @@
 </template>
 
 <script>
-import { defineComponent } from "@vue/composition-api";
+import { defineComponent, computed } from "@vue/composition-api";
 import Counter from "./Counter.vue";
 
 export default defineComponent({
@@ -24,6 +24,12 @@ export default defineComponent({
     Counter,
   },
   setup() {
+    const dynamicWidth = computed(() => {
+      const size = 10;
+      const margin = 10;
+      return Math.round((window.innerWidth - margin * size) / size);
+    });
+
     const monsters = [
       { img: "images/minis/vocal.png", name: "vocal" },
       { img: "images/minis/toad.png", name: "toad" },
@@ -52,6 +58,7 @@ export default defineComponent({
 
     return {
       monsters,
+      dynamicWidth,
     };
   },
 });
