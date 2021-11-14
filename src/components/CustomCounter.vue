@@ -30,6 +30,7 @@
 
 <script>
 import { defineComponent, ref, computed, watch } from "@vue/composition-api";
+import store from "../store/index";
 
 export default defineComponent({
   props: {
@@ -112,7 +113,7 @@ export default defineComponent({
       const prevState = alertState.value;
       if (total <= 1) {
         setAlertState(prevState, "emergence");
-      } else if (total <= 30) {
+      } else if (total === 30) {
         setAlertState(prevState, "warning");
       }
     };
@@ -124,13 +125,10 @@ export default defineComponent({
       const actionVoice = new Audio(
         require(`../assets/raw_sounds/actions/${mode}.wav`)
       );
-      channelVoice.onended = async () => {
-        await monsterNameVoice.play();
-      };
       monsterNameVoice.onended = async () => {
         await actionVoice.play();
       };
-      await channelVoice.play();
+      await monsterNameVoice.play();
     };
 
     const voiceMessageWithDuration = async (duration, mode) => {
@@ -143,16 +141,13 @@ export default defineComponent({
       const actionVoice = new Audio(
         require(`../assets/raw_sounds/actions/${mode}.wav`)
       );
-      channelVoice.onended = async () => {
-        await monsterNameVoice.play();
-      };
       monsterNameVoice.onended = async () => {
         await durationVoice.play();
       };
       durationVoice.onended = async () => {
         await actionVoice.play();
       };
-      await channelVoice.play();
+      await monsterNameVoice.play();
     };
 
     const alerm = async (alertState) => {

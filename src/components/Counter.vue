@@ -28,8 +28,8 @@ export default defineComponent({
     },
   },
   setup(props) {
-    const INIT_MIN = 7;
-    const INIT_SEC = 10;
+    const INIT_MIN = 20;
+    const INIT_SEC = 0;
     const minRef = ref(INIT_MIN);
     const secRef = ref(INIT_SEC);
     const isExist = ref(true);
