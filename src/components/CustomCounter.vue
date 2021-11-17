@@ -1,5 +1,5 @@
 <template>
-  <v-card :width="width" height="170">
+  <v-card :width="width" height="170" elevation="10">
     <div class="pa-1">
       <v-textarea hide-details outlined label="memo" height="116"
         >memo</v-textarea
@@ -20,8 +20,8 @@
         ></v-text-field>
       </div>
       <v-btn v-else block @click="clear">
-        {{ zeroPadding(minRef, Math.max(2, String(minRef).length)) }}:{{
-          zeroPadding(secRef, 2)
+        {{ zeroPadding(minutes, Math.max(2, String(minutes).length)) }}:{{
+          zeroPadding(seconds, 2)
         }}
       </v-btn>
     </v-card-text>
@@ -31,6 +31,8 @@
 <script>
 import { defineComponent, ref, computed, watch } from "@vue/composition-api";
 import store from "../store/index";
+import { chainVoices, zeroPadding } from "./common";
+import Worker from "worker-loader!@/workers/worker";
 
 export default defineComponent({
   props: {
@@ -47,10 +49,22 @@ export default defineComponent({
     },
   },
   setup(props) {
+    let initMin = 120;
+    let initSec = 0;
+
     const isExist = ref(true);
-    const minRef = ref(0);
-    const secRef = ref(0);
-    let timerObj = undefined;
+    const totalSec = ref(initMin * 60 + initSec);
+    const startDate = ref(Date.now());
+    const endDate = computed(() => {
+      const total_mills = (initMin * 60 + initSec) * 1000;
+      return startDate.value + total_mills;
+    });
+    const minutes = computed(() => {
+      return Math.floor(totalSec.value / 60);
+    });
+    const seconds = computed(() => {
+      return Math.floor(totalSec.value % 60);
+    });
 
     const setDefault = () => {
       remainTimeString.value = "120:00";
@@ -67,55 +81,71 @@ export default defineComponent({
       return true;
     });
 
-    const voiceRef = ref();
-    const voiceWithDurationRef = ref();
-    const setVoice = async () => {
-      voiceRef.value = await voiceMessage("appeared");
-      voiceWithDurationRef.value = await voiceMessageWithDuration(
-        "30sec",
-        "appearance"
-      );
+    const emergenceVoiceRef = ref();
+    const warningVoiceRef = ref();
+    const loadVoice = async () => {
+      emergenceVoiceRef.value = chainVoices([
+        `./raw_sounds/frees/${props.free}.wav`,
+        "./raw_sounds/actions/appeared.wav",
+      ]);
+      warningVoiceRef.value = chainVoices([
+        `./raw_sounds/frees/${props.free}.wav`,
+        "./raw_sounds/durations/30sec.wav",
+        "./raw_sounds/actions/appearance.wav",
+      ]);
     };
 
+    let worker = undefined;
     const start = () => {
       const [m, s] = remainTimeString.value.split(":");
-      secRef.value = Number(s);
-      minRef.value = Number(m);
-      setVoice();
+      initMin = Number(m);
+      initSec = Number(s);
+      startDate.value = Date.now();
+      totalSec.value = initMin * 60 + initSec;
+      alertState.value = initialAlertState(totalSec.value);
+      loadVoice();
 
       isExist.value = false;
+      worker = new Worker();
 
-      timerObj = setInterval(() => {
-        secRef.value -= 1;
-        if (secRef.value < 0) {
-          minRef.value -= 1;
-          secRef.value = 59;
+      worker.onmessage = (e) => {
+        const remainSec = Math.floor((endDate.value - e.data) / 1000);
+        if (remainSec <= 0) {
+          worker.terminate();
+          worker = undefined;
+          isExist.value = true;
         }
-        switchAlertState(minRef.value, secRef.value);
-      }, 1000);
+        totalSec.value = remainSec;
+      };
+      worker.postMessage(1000);
     };
+    watch(totalSec, () => {
+      switchAlertState(minutes.value, seconds.value);
+    });
 
     const stop = () => {
-      clearInterval(timerObj);
+      if (worker !== undefined) {
+        worker.terminate();
+        worker = undefined;
+      }
       isExist.value = true;
-      alertState.value = "normal";
+      alertState.value = initialAlertState(totalSec.value);
     };
 
     const clear = () => {
       stop();
     };
 
-    watch(secRef, () => {
-      if (minRef.value == 0 && secRef.value == 0) {
-        stop();
+    const initialAlertState = (total) => {
+      if (total <= 1) {
+        return "emergence";
+      } else if (total <= 30) {
+        return "warning";
+      } else {
+        return "normal";
       }
-    });
-
-    const zeroPadding = (NUM, LEN) => {
-      return (Array(LEN).join("0") + NUM).slice(-LEN);
     };
-
-    const alertState = ref("normal");
+    const alertState = ref(initialAlertState(totalSec.value));
 
     const setAlertState = (prevState, newState) => {
       if (prevState !== newState) {
@@ -123,69 +153,28 @@ export default defineComponent({
         alerm(newState);
       }
     };
-
     const switchAlertState = (min, sec) => {
       const total = min * 60 + sec;
       const prevState = alertState.value;
       if (total <= 1) {
         setAlertState(prevState, "emergence");
-      } else if (total === 30) {
+      } else if (total <= 30) {
         setAlertState(prevState, "warning");
       }
-    };
-
-    const voiceMessage = (mode) => {
-      const src = store.getters.rawSounds;
-      const monsterNameVoice = new Audio(
-        src(`./raw_sounds/frees/${props.free}.wav`)
-      );
-      monsterNameVoice.load();
-      const actionVoice = new Audio(src(`./raw_sounds/actions/${mode}.wav`));
-      actionVoice.load();
-
-      monsterNameVoice.onended = () => {
-        actionVoice.play();
-      };
-
-      return monsterNameVoice;
-    };
-
-    const voiceMessageWithDuration = async (duration, mode) => {
-      const src = store.getters.rawSounds;
-      const monsterNameVoice = new Audio(
-        src(`./raw_sounds/frees/${props.free}.wav`)
-      );
-      monsterNameVoice.load();
-
-      const durationVoice = new Audio(
-        src(`./raw_sounds/durations/${duration}.wav`)
-      );
-      durationVoice.load();
-
-      const actionVoice = new Audio(src(`./raw_sounds/actions/${mode}.wav`));
-      actionVoice.load();
-
-      monsterNameVoice.onended = () => {
-        durationVoice.play();
-      };
-      durationVoice.onended = () => {
-        actionVoice.play();
-      };
-      return monsterNameVoice;
     };
 
     const alerm = async (alertState) => {
       if (!store.getters.isSoundActive) return;
       if (alertState === "emergence") {
-        await voiceRef.value.play();
+        await emergenceVoiceRef.value.play();
       } else if (alertState === "warning") {
-        await voiceWithDurationRef.value.play();
+        await warningVoiceRef.value.play();
       }
     };
 
     return {
-      minRef,
-      secRef,
+      minutes,
+      seconds,
       remainTimeString,
       validateTimeString,
       isExist,

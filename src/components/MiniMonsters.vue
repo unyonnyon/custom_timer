@@ -2,14 +2,11 @@
   <v-container fluid class="py-0">
     <div class="d-flex flex-wrap justify-space-between">
       <div v-for="(monster, index) in monsters" :key="index" class="mb-3">
-        <v-card :width="dynamicWidth">
-          <v-img height="120" :src="monster.img"></v-img>
-          <v-card-text class="pa-2">
-            <Counter channel="ch1" :monster="monster.name" />
-            <Counter channel="ch2" :monster="monster.name" />
-            <Counter channel="ch3" :monster="monster.name" />
-          </v-card-text>
-        </v-card>
+        <basic-counter
+          :width="dynamicWidth"
+          :img="monster.img"
+          :monster="monster.name"
+        />
       </div>
     </div>
   </v-container>
@@ -17,11 +14,11 @@
 
 <script>
 import { defineComponent, computed } from "@vue/composition-api";
-import Counter from "./Counter.vue";
+import BasicCounter from "./BasicCounter.vue";
 
 export default defineComponent({
   components: {
-    Counter,
+    BasicCounter,
   },
   setup() {
     const dynamicWidth = computed(() => {
