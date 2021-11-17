@@ -9,6 +9,7 @@ export default new Vuex.Store({
       sound: false,
       mvpAlertTimings: [],
     },
+    rawSounds: require.context("../assets", true, /\.wav$/),
   },
   getters: {
     isSoundActive(state) {
@@ -16,6 +17,9 @@ export default new Vuex.Store({
     },
     mvpAlertTimings(state) {
       return state.config.mvpAlertTimings;
+    },
+    rawSounds(state) {
+      return state.rawSounds;
     },
   },
   mutations: {

@@ -53,7 +53,6 @@ export default defineComponent({
     let timerObj = undefined;
 
     const setDefault = () => {
-      console.log("set default");
       remainTimeString.value = "120:00";
     };
 
@@ -68,11 +67,21 @@ export default defineComponent({
       return true;
     });
 
+    const voiceRef = ref();
+    const voiceWithDurationRef = ref();
+    const setVoice = async () => {
+      voiceRef.value = await voiceMessage("appeared");
+      voiceWithDurationRef.value = await voiceMessageWithDuration(
+        "30sec",
+        "appearance"
+      );
+    };
+
     const start = () => {
       const [m, s] = remainTimeString.value.split(":");
-      console.log(m, s);
       secRef.value = Number(s);
       minRef.value = Number(m);
+      setVoice();
 
       isExist.value = false;
 
@@ -125,44 +134,52 @@ export default defineComponent({
       }
     };
 
-    const voiceMessage = async (mode) => {
+    const voiceMessage = (mode) => {
+      const src = store.getters.rawSounds;
       const monsterNameVoice = new Audio(
-        require(`../assets/raw_sounds/frees/${props.free}.wav`)
+        src(`./raw_sounds/frees/${props.free}.wav`)
       );
-      const actionVoice = new Audio(
-        require(`../assets/raw_sounds/actions/${mode}.wav`)
-      );
-      monsterNameVoice.onended = async () => {
-        await actionVoice.play();
+      monsterNameVoice.load();
+      const actionVoice = new Audio(src(`./raw_sounds/actions/${mode}.wav`));
+      actionVoice.load();
+
+      monsterNameVoice.onended = () => {
+        actionVoice.play();
       };
-      await monsterNameVoice.play();
+
+      return monsterNameVoice;
     };
 
     const voiceMessageWithDuration = async (duration, mode) => {
+      const src = store.getters.rawSounds;
       const monsterNameVoice = new Audio(
-        require(`../assets/raw_sounds/frees/${props.free}.wav`)
+        src(`./raw_sounds/frees/${props.free}.wav`)
       );
+      monsterNameVoice.load();
+
       const durationVoice = new Audio(
-        require(`../assets/raw_sounds/durations/${duration}.wav`)
+        src(`./raw_sounds/durations/${duration}.wav`)
       );
-      const actionVoice = new Audio(
-        require(`../assets/raw_sounds/actions/${mode}.wav`)
-      );
-      monsterNameVoice.onended = async () => {
-        await durationVoice.play();
+      durationVoice.load();
+
+      const actionVoice = new Audio(src(`./raw_sounds/actions/${mode}.wav`));
+      actionVoice.load();
+
+      monsterNameVoice.onended = () => {
+        durationVoice.play();
       };
-      durationVoice.onended = async () => {
-        await actionVoice.play();
+      durationVoice.onended = () => {
+        actionVoice.play();
       };
-      await monsterNameVoice.play();
+      return monsterNameVoice;
     };
 
     const alerm = async (alertState) => {
       if (!store.getters.isSoundActive) return;
       if (alertState === "emergence") {
-        await voiceMessage("appeared");
+        await voiceRef.value.play();
       } else if (alertState === "warning") {
-        await voiceMessageWithDuration("30sec", "appearance");
+        await voiceWithDurationRef.value.play();
       }
     };
 

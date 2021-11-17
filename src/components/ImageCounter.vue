@@ -58,7 +58,6 @@ export default defineComponent({
     let timerObj = undefined;
 
     const setDefault = () => {
-      console.log("set default");
       remainTimeString.value = "120:00";
     };
 
@@ -73,11 +72,31 @@ export default defineComponent({
       return true;
     });
 
+    const appearanceVoiceRef = ref();
+    const emergenceVoiceRef = ref();
+    const warningVoiceRef = ref();
+    const cautionVoiceRef = ref();
+    const setVoice = async () => {
+      appearanceVoiceRef.value = await voiceMessage("appeared");
+      emergenceVoiceRef.value = await voiceMessageWithDuration(
+        "2min",
+        "appearance"
+      );
+      warningVoiceRef.value = await voiceMessageWithDuration(
+        "5min",
+        "appearance"
+      );
+      cautionVoiceRef.value = await voiceMessageWithDuration(
+        "10min",
+        "appearance"
+      );
+    };
+
     const start = () => {
       const [m, s] = remainTimeString.value.split(":");
-      console.log(m, s);
       secRef.value = Number(s);
       minRef.value = Number(m);
+      setVoice();
 
       isExist.value = false;
 
@@ -125,16 +144,16 @@ export default defineComponent({
       if (!store.getters.isSoundActive) return;
       switch (alertState) {
         case "appearance":
-          await voiceMessage("appeared");
+          await appearanceVoiceRef.value.play();
           break;
         case "emergence":
-          await voiceMessageWithDuration("2min", "appearance");
+          await emergenceVoiceRef.value.play();
           break;
         case "warning":
-          await voiceMessageWithDuration("5min", "appearance");
+          await warningVoiceRef.value.play();
           break;
         case "caution":
-          await voiceMessageWithDuration("10min", "appearance");
+          await cautionVoiceRef.value.play();
           break;
         default:
           break;
@@ -157,35 +176,43 @@ export default defineComponent({
     };
 
     const voiceMessage = async (mode) => {
+      const src = store.getters.rawSounds;
       const monsterNameVoice = new Audio(
-        require(`../assets/raw_sounds/mvps/${props.monster}.wav`)
+        src(`./raw_sounds/mvps/${props.monster}.wav`)
       );
-      const actionVoice = new Audio(
-        require(`../assets/raw_sounds/actions/${mode}.wav`)
-      );
-      monsterNameVoice.onended = async () => {
-        await actionVoice.play();
+      monsterNameVoice.load();
+      const actionVoice = new Audio(src(`./raw_sounds/actions/${mode}.wav`));
+      actionVoice.load();
+
+      monsterNameVoice.onended = () => {
+        actionVoice.play();
       };
-      await monsterNameVoice.play();
+
+      return monsterNameVoice;
     };
 
     const voiceMessageWithDuration = async (duration, mode) => {
+      const src = store.getters.rawSounds;
       const monsterNameVoice = new Audio(
-        require(`../assets/raw_sounds/mvps/${props.monster}.wav`)
+        src(`./raw_sounds/mvps/${props.monster}.wav`)
       );
+      monsterNameVoice.load();
+
       const durationVoice = new Audio(
-        require(`../assets/raw_sounds/durations/${duration}.wav`)
+        src(`./raw_sounds/durations/${duration}.wav`)
       );
-      const actionVoice = new Audio(
-        require(`../assets/raw_sounds/actions/${mode}.wav`)
-      );
-      monsterNameVoice.onended = async () => {
-        await durationVoice.play();
+      durationVoice.load();
+
+      const actionVoice = new Audio(src(`./raw_sounds/actions/${mode}.wav`));
+      actionVoice.load();
+
+      monsterNameVoice.onended = () => {
+        durationVoice.play();
       };
-      durationVoice.onended = async () => {
-        await actionVoice.play();
+      durationVoice.onended = () => {
+        actionVoice.play();
       };
-      await monsterNameVoice.play();
+      return monsterNameVoice;
     };
 
     return {
