@@ -8,6 +8,9 @@
           :monster="monster.name"
         />
       </div>
+      <div v-for="index in 4" :key="index" class="mb-3">
+        <dummy-counter :width="dynamicWidth"></dummy-counter>
+      </div>
     </div>
   </v-container>
 </template>
@@ -15,10 +18,12 @@
 <script>
 import { defineComponent, computed } from "@vue/composition-api";
 import BasicCounter from "./BasicCounter.vue";
+import DummyCounter from "./DummyCounter.vue";
 
 export default defineComponent({
   components: {
     BasicCounter,
+    DummyCounter,
   },
   setup() {
     const dynamicWidth = computed(() => {
@@ -51,6 +56,12 @@ export default defineComponent({
       { img: "images/minis/ghost_ring.png", name: "ghost_ring" },
       { img: "images/minis/anubis.png", name: "anubis" },
       { img: "images/minis/dark_priest.png", name: "dark_priest" },
+      { img: "images/minis/ogre_tooth.png", name: "ogre_tooth" },
+      { img: "images/minis/owl_duke.png", name: "owl_duke" },
+      { img: "images/minis/knight_of_abyss.png", name: "knight_of_abyss" },
+      { img: "images/minis/mysteltainn.png", name: "mysteltainn" },
+      { img: "images/minis/dark_illusion.png", name: "dark_illusion" },
+      { img: "images/minis/zealotus.png", name: "zealotus" },
     ];
 
     return {

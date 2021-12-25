@@ -11,6 +11,9 @@
       <custom-counter free="free1" :width="dynamicWidth" />
       <custom-counter free="free2" :width="dynamicWidth" />
       <custom-counter free="free3" :width="dynamicWidth" />
+      <div v-for="index in 6" :key="index" class="mb-3">
+        <dummy-counter :width="dynamicWidth"></dummy-counter>
+      </div>
     </div>
   </v-container>
 </template>
@@ -19,11 +22,13 @@
 import { defineComponent, computed } from "@vue/composition-api";
 import ImageCounter from "./ImageCounter.vue";
 import CustomCounter from "./CustomCounter.vue";
+import DummyCounter from "./DummyCounter.vue";
 
 export default defineComponent({
   components: {
     ImageCounter,
     CustomCounter,
+    DummyCounter,
   },
   setup() {
     const dynamicWidth = computed(() => {
@@ -50,6 +55,10 @@ export default defineComponent({
       { img: "images/mvps/doppelganger.png", name: "doppelganger" },
       { img: "images/mvps/pharaoh.png", name: "pharaoh" },
       { img: "images/mvps/baphomet.png", name: "baphomet" },
+      { img: "images/mvps/chimera.png", name: "chimera" },
+      { img: "images/mvps/owl_baron.png", name: "owl_baron" },
+      { img: "images/mvps/bloody_knight.png", name: "bloody_knight" },
+      { img: "images/mvps/dark_lord.png", name: "dark_lord" },
     ];
     return {
       dynamicWidth,
