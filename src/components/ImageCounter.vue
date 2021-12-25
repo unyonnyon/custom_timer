@@ -3,7 +3,7 @@
     <div @click="setDefault">
       <v-img height="120" :src="img"></v-img>
     </div>
-    <v-card-text class="px-2 mt-1 py-1">
+    <v-card-text class="px-1 mt-1 py-1">
       <div v-if="isExist" class="d-flex justify-around-between px-1">
         <v-btn icon @click="start" :disabled="!validateTimeString" class="mx-0">
           <v-icon color="primary">mdi-clock-alert-outline</v-icon>

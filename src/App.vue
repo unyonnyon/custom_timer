@@ -10,8 +10,8 @@
 
     <v-footer color="black" dark>
       <v-container>
-        <v-row justify="center">もちもちたいまー v1.1.0</v-row>
-        <v-row justify="center">VOICEVOX:四国めたん ©2021 MC2P2.Lab</v-row>
+        <v-row justify="center">もちもちたいまー v1.1.1</v-row>
+        <v-row justify="center">VOICEVOX:四国めたん ©2021 MC2P2Lab</v-row>
         <v-row justify="center">
           ©Gravity Co., Ltd. & LeeMyoungJin(studio DTDS) All rights reserved.
         </v-row>
